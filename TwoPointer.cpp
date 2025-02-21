@@ -96,7 +96,9 @@ vector<int> TwoPointer::Leetcode_Sol_167(vector<int>& numbers, int target,int _s
     switch (_solution)
     {
     case 1:
-        return twoSum(numbers, target);
+        return Map_167(numbers, target);
+    case 2:
+        return TwoPointer_167(numbers, target);
     default:
         return std::vector<int>{}; // 確保所有路徑都有回傳值
     }
@@ -104,7 +106,38 @@ vector<int> TwoPointer::Leetcode_Sol_167(vector<int>& numbers, int target,int _s
     return{};
 }
 
-vector<int> TwoPointer::twoSum(vector<int>& numbers, int target) {
+vector<int> TwoPointer::Map_167(vector<int>& numbers, int target) {
+    /*
+         num1 + num2 = target
+         num1 = target - num2
+         unordered_map[num2] = num1 => i;
+    */
+    unordered_map<int, int> map;
+    for (int i = 0;i < numbers.size();i++) {
+        if (map.find(numbers[i]) == map.end())
+            map[target - numbers[i]] = i;
+        else
+            return { map[numbers[i]] ,i};
+    }
+
+    return {};
+}
+/*左右指針（Opposite Direction Two Pointers）*/
+vector<int> TwoPointer::TwoPointer_167(vector<int>& numbers, int target) {
+    /*
+    * Because it's in non-decreasing sort, so it's can use TwoPointer to Solution
+    * Trap：added by one =>Original：Return the indices of the two numbers, index1 and index2, "added by one" as an integer array [index1, index2] of length 2.
+    */
+    int p1 = 0; int p2 = numbers.size() - 1;
+    while (p1 < p2) {
+        if (numbers[p1] + numbers[p2] == target) return { ++p1,++p2 };
+        else if (target - numbers[p1] < numbers[p2])p2--;
+        else if (target - numbers[p2] > numbers[p1])p1++;
+        else
+        {
+            p1++; p2--;
+        }
+    }
     return {};
 }
 #pragma endregion

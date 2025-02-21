@@ -39,7 +39,8 @@ public:
 
     // ======= Leetcode Solutions =======
     std::vector<int> Leetcode_Sol_167(std::vector<int>& numbers, int target, int _solution);
-    std::vector<int> twoSum(std::vector<int>& numbers, int target);
+    std::vector<int> Map_167(std::vector<int>& numbers, int target);
+    std::vector<int> TwoPointer_167(std::vector<int>& numbers, int target);
     // ======= Leetcode Solutions =======
 
 };
