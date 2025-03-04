@@ -47,9 +47,22 @@ public:
     void display() const;
 
     // ======= Leetcode Solutions =======
+    int Leetcode_Sol_11(std::vector<int>& height);
+
+    bool Leetcode_Sol_125(std::string s);
+
     std::vector<int> Leetcode_Sol_167(std::vector<int>& numbers, int target, int _solution);
     std::vector<int> Map_167(std::vector<int>& numbers, int target);
     std::vector<int> TwoPointer_167(std::vector<int>& numbers, int target);
+
+    int Leetcode_Sol_3(std::string s);
+
+    int Leetcode_Sol_209(std::vector<int>& nums, int target);
+
+    bool Leetcode_Sol_141(ListNode* head);
+
+    int Leetcode_Sol_287(std::vector<int>& nums);//*****
+
 
     std::vector<int> Leetcode_Sol_658(std::vector<int>& numbers, int k, int x, int _solution);
     std::vector<int> TwoPointer_658(std::vector<int>& numbers, int k, int x);
@@ -69,7 +82,7 @@ public:
     std::vector<std::vector<int>> Universal_18(std::vector<int>& nums, int target);
     void nSum(const std::vector<int>& nums, long n, long target, int l, int r, std::vector<int>& path, std::vector<std::vector<int>>& ans);
 
-    void Leetcode_Sol_75(std::vector<int>& nums, int _solution);
+    void Leetcode_Sol_75(std::vector<int>& nums, int _solution);//****
     void MergeSort_75(std::vector<int>& nums, int first, int last);
     void Merge_75(std::vector<int>& nums, int first, int middle, int last);
     void QuickSort_75(std::vector<int>& nums, int first, int last);

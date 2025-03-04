@@ -98,8 +98,42 @@ void TwoPointer::display() const {
 }
 #pragma endregion
 
+#pragma region 考題一:左右指針：1.排序數組 2.回文 3.最大面積
+#pragma region Leetcode 11. Container With Most Water
+//Leetcode 11. Container With Most Water
+int TwoPointer::Leetcode_Sol_11(vector<int>& height) {
+    /*左右指針*/
+    int maxwater = 0, max_temp = 0;
+    int left = 0, right = height.size() - 1;
+    int height_max = 0;
+    while (left < right) {
+        if (height[right] > height[left]) {
+            max_temp = height[left] * (right - left);
+            left++;
+        }
+        else {
+            max_temp = height[right] * (right - left);
+            right--;
+        }
+        maxwater = maxwater > max_temp ? maxwater : max_temp;
+    }
+    return maxwater;
+}
+#pragma endregion
 
-
+#pragma region Leetcode 125. Valid Palindrome
+//Leetcode 125. Valid Palindrome
+bool TwoPointer::Leetcode_Sol_125(string s) {
+    /*左右指針*/
+    int left = 0, right = s.size() - 1;
+    while (left <= right) {
+        if (!isalnum(s[left])) left++;
+        else if (!isalnum(s[right])) right--;
+        else if (tolower(s[left++]) != tolower(s[right--])) return false;
+    }
+    return true;
+}
+#pragma endregion
 
 #pragma region Leetcode 167. Two Sum II - Input Array Is Sorted
 //Leetcode 167. Two Sum II - Input Array Is Sorted
@@ -151,6 +185,146 @@ vector<int> TwoPointer::TwoPointer_167(vector<int>& numbers, int target) {
     }
     return {};
 }
+#pragma endregion
+#pragma endregion
+
+#pragma region 考題二:同向指針 1.子陣列 2.滑動窗口(Sliding Window)
+
+#pragma region Leetcode 3. Longest Substring Without Repeating Characters
+//Leetcode 11. Longest Substring Without Repeating Characters
+/*標準slinding window*/
+int TwoPointer::Leetcode_Sol_3(string s) {
+    int left = 0, right = 0;
+    vector<int> freq(128, 0);
+    int max_length = 0;
+    while (right < s.size()) {
+        if (!freq[s[right]])
+            freq[s[right++]]++;
+        else { //存在
+            if (freq[s[left]]) freq[s[left++]]--;
+        }
+        int maxtemp = right - left;
+        max_length = max_length < maxtemp ? maxtemp : max_length;
+    }
+    return max_length;
+}
+#pragma endregion
+
+#pragma region Leetcode 209. Minimum Size Subarray Sum
+//Leetcode 209. Minimum Size Subarray Sum
+/*標準slinding window*/
+int TwoPointer::Leetcode_Sol_209(std::vector<int>& nums, int target) {
+    int left = 0, right = 0;
+    int min_length = INT_MAX;
+    int sum = 0;
+    while (right < nums.size()) {
+        sum += nums[right];
+        if (sum < target)
+            right++;
+        else { //這時候已經>= target
+            int lengthtemp = right - left + 1;
+            min_length = min_length < lengthtemp ? min_length : lengthtemp;
+            sum -= nums[right];
+            sum -= nums[left++];
+        }
+    }
+    return min_length == INT_MAX ? 0 : min_length;
+}
+#pragma endregion
+#pragma endregion
+
+#pragma region 考題三:快慢指針 1.環檢測(one step + two step) 2.中點查找 3.fast先跑,再與slow一起跑
+
+#pragma region Leetcode 141. Linked List Cycle
+//Leetcode 141. Linked List Cycle
+/*fast slow pointer*/
+bool TwoPointer::Leetcode_Sol_141(ListNode* head){
+    ListNode* Dummy = new ListNode(-1, head);
+    ListNode* fast = Dummy, * slow = Dummy;
+    while (fast && fast->next) {
+        fast = fast->next->next;
+        slow = slow->next;
+        if (fast == slow) return true;
+    }
+    return false;
+}
+#pragma endregion
+
+#pragma region Leetcode 287. Find the Duplicate Number
+//Leetcode 287. Find the Duplicate Number
+/*PigeonHole Principle && Floyd’s Tortoise and Hare (Cycle Detection) && Fast slow Pointer*/
+int TwoPointer::Leetcode_Sol_287(vector<int>& nums) {
+    int fast = nums[0], slow = nums[0];
+    do {
+        slow = nums[slow];
+        fast = nums[nums[fast]];
+    } while (fast != slow);
+    slow = nums[0];
+    while (fast != slow) {
+        slow = nums[slow];
+        fast = nums[fast];
+    }
+    return fast;
+}
+#pragma endregion
+
+#pragma region Leetcode 19. Remove Nth Node From End of List
+//Leetcode 19. Remove Nth Node From End of List
+ListNode* TwoPointer::Leetcode_Sol_19(ListNode* head, int n, int _solution) {
+    switch (_solution)
+    {
+    case 1:
+        return OnePointer_19(head, n);
+    case 2:
+        return TwoPointer_19(head, n);
+    default:
+        return nullptr; // 確保所有路徑都有回傳值
+    }
+
+    return nullptr;
+}
+
+ListNode* TwoPointer::OnePointer_19(ListNode* head, int n) {
+    ListNode* Dummy = new ListNode(-1, head);
+    ListNode* fast = head; int idx = 0; int iCount = 0;
+    while (fast) {
+        fast = fast->next;
+        iCount++;
+    }
+    int iShift = iCount - n;
+    fast = Dummy;
+    while (idx != iShift) {
+        fast = fast->next;
+        idx++;
+    }
+    ListNode* delnode = fast->next;
+    fast->next = fast->next->next;
+    delete delnode;
+    return  Dummy->next;
+}
+
+ListNode* TwoPointer::TwoPointer_19(ListNode* head, int n) {
+    ListNode* Dummy = new ListNode(-1, head);// 重要：虛擬頭節點，避免刪除第一個節點的特判
+    ListNode* fast = Dummy;
+    ListNode* slow = Dummy;
+
+    //我們需要知道被截掉的前一段，所以差距需要+1
+    for (int i = 0; i <= n/*i < n + 1*/; i++)
+        fast = fast->next;
+
+    //因為她是往回刪除，所以利用最後的間距(把這個間距平移到最前面 =>相當於間距的平移)
+    while (fast) {
+        fast = fast->next;
+        slow = slow->next;
+    }
+    //這時候的slow是他的前一個節點(刪除 slow->next（即倒數第 N 個節點）)
+    ListNode* nodeToDelete = slow->next;
+    slow->next = slow->next->next;
+    delete nodeToDelete;
+
+    return Dummy->next;
+}
+#pragma endregion
 #pragma endregion
 
 #pragma region Leetcode 658. Find K Closest Elements
@@ -227,63 +401,7 @@ vector<int> TwoPointer::BinarySearchAndTwoPointer_658(vector<int>& numbers, int 
 }
 #pragma endregion
 
-#pragma region Leetcode 19. Remove Nth Node From End of List
-//Leetcode 19. Remove Nth Node From End of List
-ListNode* TwoPointer::Leetcode_Sol_19(ListNode* head, int n, int _solution) {
-    switch (_solution)
-    {
-    case 1:
-        return OnePointer_19(head, n);
-    case 2:
-        return TwoPointer_19(head, n);
-    default:
-        return nullptr; // 確保所有路徑都有回傳值
-    }
 
-    return nullptr;
-}
-
-ListNode* TwoPointer::OnePointer_19(ListNode* head, int n) {
-    ListNode* Dummy = new ListNode(-1,head);
-    ListNode* fast = head; int idx = 0; int iCount = 0;
-    while (fast) {
-        fast = fast->next;
-        iCount++;
-    }
-    int iShift = iCount - n;
-    fast = Dummy;
-    while (idx!= iShift) {
-        fast = fast->next;
-        idx++;
-    }
-    ListNode* delnode = fast->next;
-    fast->next = fast->next->next;
-    delete delnode;
-    return  Dummy->next;
-}
-
-ListNode* TwoPointer::TwoPointer_19(ListNode* head, int n) {
-    ListNode* Dummy = new ListNode(-1, head);// 重要：虛擬頭節點，避免刪除第一個節點的特判
-    ListNode* fast = Dummy;
-    ListNode* slow = Dummy;
-
-    //我們需要知道被截掉的前一段，所以差距需要+1
-    for (int i = 0; i <= n/*i < n + 1*/; i++)
-        fast = fast->next;
-
-    //因為她是往回刪除，所以利用最後的間距(把這個間距平移到最前面 =>相當於間距的平移)
-    while (fast) {
-        fast = fast->next;
-        slow = slow->next;
-    }
-    //這時候的slow是他的前一個節點(刪除 slow->next（即倒數第 N 個節點）)
-    ListNode* nodeToDelete = slow->next;
-    slow->next = slow->next->next;
-    delete nodeToDelete;
-
-    return Dummy->next;
-}
-#pragma endregion
 
 #pragma region Leetcode 15. 3Sum
 //Leetcode 15. 3Sum
@@ -441,8 +559,11 @@ void TwoPointer::nSum(const vector<int>& nums, long n, long target, int l, int r
 }
 #pragma endregion
 
+#pragma region 考題五:ThreePointer
+
 #pragma region Leetcode 75. Sort Colors
 //Leetcode 75. Sort Colors
+/*Dutch National Flag Algorithm (DNF) => ThreePointer*/
 void TwoPointer::Leetcode_Sol_75(vector<int>& nums, int _solution) {
     int last = nums.size() - 1, first = 0;
     switch (_solution)
@@ -569,6 +690,7 @@ void TwoPointer::Leetcode_Sol_88(std::vector<int>& nums1, int m, std::vector<int
     while (p2 >= 0)
         nums1[p3--] = nums2[p2--];
 }
+#pragma endregion
 #pragma endregion
 
 #pragma region Leetcode 5. Longest Palindromic Substring
