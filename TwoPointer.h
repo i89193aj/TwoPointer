@@ -66,7 +66,7 @@ public:
 
     std::vector<int> Leetcode_Sol_658(std::vector<int>& numbers, int k, int x, int _solution);
     std::vector<int> TwoPointer_658(std::vector<int>& numbers, int k, int x);
-    std::vector<int> BinarySearchAndTwoPointer_658(std::vector<int>& numbers, int k, int x);
+    std::vector<int> BinarySearchAndTwoPointer_658(std::vector<int>& numbers, int k, int x);//*****(binary search + TwoPointer)
 
     ListNode* Leetcode_Sol_19(ListNode* head, int n, int _solution);
     ListNode* TwoPointer_19(ListNode* head, int n);

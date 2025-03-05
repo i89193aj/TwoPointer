@@ -65,7 +65,7 @@ int main()
     
 }
 
-#pragma region TwoPointer
+#pragma region Class:TwoPointer
 // 預設建構式，初始化指標
 TwoPointer::TwoPointer() : data(new int(0)) {
     std::cout << "Default constructor called. Data initialized to 0." << std::endl;
@@ -184,6 +184,80 @@ vector<int> TwoPointer::TwoPointer_167(vector<int>& numbers, int target) {
         }
     }
     return {};
+}
+#pragma endregion
+
+#pragma region Leetcode 658. Find K Closest Elements
+//Leetcode 658. Find K Closest Elements (也是考排序 + 某一值的左右)
+vector<int> TwoPointer::Leetcode_Sol_658(vector<int>& numbers, int k, int x, int _solution) {
+    switch (_solution)
+    {
+    case 1:
+        return TwoPointer_658(numbers, k, x);
+    case 2:
+        return BinarySearchAndTwoPointer_658(numbers, k, x);
+    default:
+        return vector<int>{}; // 確保所有路徑都有回傳值
+    }
+
+    return{};
+}
+
+vector<int> TwoPointer::TwoPointer_658(vector<int>& numbers, int k, int x) {
+    int left = 0; int right = 0; deque<int> anstemp;//記住錯誤push_back、push_front是額外加入元素並不是取代元素
+    int endidx = numbers.size() - 1;
+    while (numbers[left] < x && left < endidx) {
+        left++;
+    }
+    left--;
+    right = left + 1 >= endidx ? endidx : left + 1;
+    int iCount = 0;
+    while (iCount != k && left >= 0 && right <= endidx) {//邊界條件設在這裡
+        if (x - numbers[left] > numbers[right] - x) { //這個不能left == 0，邊界值不能這樣設，會有剛好的問題
+            anstemp.push_back(numbers[right]);
+            right++;
+        }
+        else if (x - numbers[left] <= numbers[right] - x) {
+            anstemp.push_front(numbers[left]);
+            left--;
+        }
+
+        iCount++;
+    }
+
+    while (iCount != k && left >= 0) {
+        anstemp.push_front(numbers[left]);
+        left--;
+        iCount++;
+    }
+
+    while (iCount != k && right <= endidx) {
+        anstemp.push_back(numbers[right]);
+        right++;
+        iCount++;
+    }
+
+    return  vector<int>(anstemp.begin(), anstemp.end());
+}
+/* 星星：*****
+* 1.了解deque怎麼用(包含deque轉vector)，O(1)
+* 2.了解binarysearc怎麼用(lower_bound、upper_bound)，O(logn)
+* 3.TwoPointer(O(k))
+* Time Complexity：(O(k+logn))
+*/
+vector<int> TwoPointer::BinarySearchAndTwoPointer_658(vector<int>& numbers, int k, int x) {
+    int left = lower_bound(numbers.begin(), numbers.end(), x) - numbers.begin() - 1;//O(logn)
+    int right = left + 1;
+    deque<int> anstemp;
+    //O(k)
+    while (k--) {
+        if (right >= numbers.size() || (left >= 0 && x - numbers[left] <= numbers[right] - x))
+            anstemp.push_front(numbers[left--]);
+        else
+            anstemp.push_back(numbers[right++]);
+    }
+
+    return vector<int>(anstemp.begin(), anstemp.end());
 }
 #pragma endregion
 #pragma endregion
@@ -327,79 +401,7 @@ ListNode* TwoPointer::TwoPointer_19(ListNode* head, int n) {
 #pragma endregion
 #pragma endregion
 
-#pragma region Leetcode 658. Find K Closest Elements
-//Leetcode 658. Find K Closest Elements
-vector<int> TwoPointer::Leetcode_Sol_658(vector<int>& numbers, int k, int x, int _solution) {
-    switch (_solution)
-    {
-    case 1:
-        return TwoPointer_658(numbers, k, x);
-    case 2:
-        return BinarySearchAndTwoPointer_658(numbers, k, x);
-    default:
-        return vector<int>{}; // 確保所有路徑都有回傳值
-    }
 
-    return{};
-}
-
-vector<int> TwoPointer::TwoPointer_658(vector<int>& numbers, int k, int x) {
-    int left = 0; int right = 0; deque<int> anstemp;//記住錯誤push_back、push_front是額外加入元素並不是取代元素
-    int endidx = numbers.size() - 1;
-    while (numbers[left] < x && left < endidx) {
-        left++;
-    }
-    left--;
-    right = left + 1 >= endidx ? endidx : left + 1;
-    int iCount = 0;
-    while (iCount != k && left >= 0 && right <= endidx) {//邊界條件設在這裡
-        if (x - numbers[left] > numbers[right] - x) { //這個不能left == 0，邊界值不能這樣設，會有剛好的問題
-            anstemp.push_back(numbers[right]);
-            right++;
-        }
-        else if (x - numbers[left] <= numbers[right] - x) {
-            anstemp.push_front(numbers[left]);
-            left--;
-        }
-
-        iCount++;
-    }
-
-    while (iCount != k && left >= 0) {
-        anstemp.push_front(numbers[left]);
-        left--;
-        iCount++;
-    }
-
-    while (iCount != k && right <= endidx) {
-        anstemp.push_back(numbers[right]);
-        right++;
-        iCount++;
-    }
-
-    return  vector<int> (anstemp.begin(), anstemp.end());
-}
-/* 星星：***** 
-* 1.了解deque怎麼用(包含deque轉vector)，O(1)
-* 2.了解binarysearc怎麼用(lower_bound、upper_bound)，O(logn)
-* 3.TwoPointer(O(k))
-* Time Complexity：(O(k+logn))
-*/
-vector<int> TwoPointer::BinarySearchAndTwoPointer_658(vector<int>& numbers, int k, int x) {
-    int left = lower_bound(numbers.begin(), numbers.end(), x) - numbers.begin() - 1;//O(logn)
-    int right = left + 1;
-    deque<int> anstemp;
-    //O(k)
-    while (k--) {
-        if (right >= numbers.size() || (left >= 0 && x - numbers[left] <= numbers[right] - x))
-            anstemp.push_front(numbers[left--]);
-        else
-            anstemp.push_back(numbers[right++]);
-    }
-
-    return vector<int>(anstemp.begin(), anstemp.end());
-}
-#pragma endregion
 
 
 
