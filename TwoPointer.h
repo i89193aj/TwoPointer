@@ -72,15 +72,18 @@ public:
     ListNode* TwoPointer_19(ListNode* head, int n);
     ListNode* OnePointer_19(ListNode* head, int n);
 
-    std::vector<std::vector<int>> Leetcode_Sol_15(std::vector<int>& nums, int _solution);
+    std::vector<std::vector<int>> Leetcode_Sol_15(std::vector<int>& nums, int _solution);//*****
     std::vector<std::vector<int>> TwoPointer_15(std::vector<int>& nums);
+    std::vector<std::vector<int>> TwoPointerByiterator_15(std::vector<int>& nums);
     void Sort_15(std::vector<int>& nums, int first, int last);
     void OutPlace_15(std::vector<int>& nums, int first,int middle, int last);
 
-    std::vector<std::vector<int>> Leetcode_Sol_18(std::vector<int>& nums,int target, int _solution);
+    std::vector<std::vector<int>> Leetcode_Sol_18(std::vector<int>& nums,int target, int _solution);//*****
     std::vector<std::vector<int>> TwoPointer_18(std::vector<int>& nums, int target);
-    std::vector<std::vector<int>> Universal_18(std::vector<int>& nums, int target);
-    void nSum(const std::vector<int>& nums, long n, long target, int l, int r, std::vector<int>& path, std::vector<std::vector<int>>& ans);
+    std::vector<std::vector<int>> TwoPointeriterator_18(std::vector<int>& nums, int target);//*****
+    std::vector<std::vector<int>> Universal_18(std::vector<int>& nums, int target);//*****
+
+    void nSum(const std::vector<int>& nums, long n, long target, int l, int r, std::vector<int>& path, std::vector<std::vector<int>>& ans);//*****
 
     void Leetcode_Sol_75(std::vector<int>& nums, int _solution);//****
     void MergeSort_75(std::vector<int>& nums, int first, int last);
@@ -95,6 +98,19 @@ public:
     std::string Leetcode_Sol_5(std::string s, int _solution);
     std::string TwoPointerOfExpandAroundCenter_5(std::string s);
     std::string ManachersAlg_5(std::string s);
+
+    int Leetcode_Sol_42(std::vector<int>& height);//*****
+
+    std::string Leetcode_Sol_76(std::string s,std::string t);
+
+    int Leetcode_Sol_647(std::string s, int _solution);
+    int brute_force_647(std::string s);
+    int TwoPointer_647(std::string s);
+    int ManachersAlg_647(std::string s);
+    int even(std::string s, int idx);
+    int odd(std::string s, int idx);
+
+
 
 
 

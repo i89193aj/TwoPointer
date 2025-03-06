@@ -49,6 +49,16 @@ int main()
     default:
         break;
     }
+
+    #pragma region vector
+        std::vector<int> nums_test;
+        nums_test.reserve(4);  // 預留 4 個空間
+
+        // 嘗試訪問 nums[4]
+        //std::cout << nums[4] << std::endl;  // 這裡會導致未定義行為
+    #pragma endregion
+
+    
     #pragma region TwoPointer
     TwoPointer obj1;              // 呼叫預設建構式
     obj1.display();
@@ -98,7 +108,7 @@ void TwoPointer::display() const {
 }
 #pragma endregion
 
-#pragma region 考題一:左右指針：1.排序數組 2.回文 3.最大面積
+#pragma region 考題一:左右指針(相向)：1.排序數組 2.回文 3.最大面積
 #pragma region Leetcode 11. Container With Most Water
 //Leetcode 11. Container With Most Water
 int TwoPointer::Leetcode_Sol_11(vector<int>& height) {
@@ -187,6 +197,237 @@ vector<int> TwoPointer::TwoPointer_167(vector<int>& numbers, int target) {
 }
 #pragma endregion
 
+#pragma region Leetcode 15. 3Sum
+//Leetcode 15. 3Sum(排序數組)
+vector<vector<int>> TwoPointer::Leetcode_Sol_15(vector<int>& nums, int _solution) {
+    switch (_solution)
+    {
+    case 1:
+        return TwoPointer_15(nums);
+    case 2:
+        return TwoPointerByiterator_15(nums);
+    default:
+        return {}; // 確保所有路徑都有回傳值
+    }
+
+    return {};
+}
+/*雙指針 + 排序	KSum 問題=> O(n^2)*/
+vector<vector<int>> TwoPointer::TwoPointer_15(vector<int>& nums) {
+    //Sort_15(nums,0,nums.size()-1);    //自己寫的mergesort
+    std::sort(nums.begin(), nums.end()); //std的sort
+    vector<vector<int>> ans; int size = nums.size();
+    ans.reserve(size / 3); //直接預留空間，不然超過會一直重新創，浪費時間
+    for (int i = 0; i < size - 2/*左右各一*/; i++) {
+        if (i > 0 && nums[i] == nums[i - 1]) continue;         //第二次打還是會忘記重複的直接省去
+        int l = i + 1, r = size - 1;
+        while (l < r) {
+            int sum = nums[i] + nums[l] + nums[r];
+            if (sum == 0) {
+                ans.push_back({ nums[i], nums[l], nums[r] }); \
+                    l++;
+                r--;
+                while (l < r && nums[l] == nums[l - 1]) l++;    //重複的就別錯了，EX：[1,1......105]
+                while (l < r && nums[r] == nums[r + 1])r--;     //第二次打還是會忘記重複的直接省去
+            }
+            else if (sum < 0) l++;
+            else r--;
+        }
+    }
+    return ans;
+}
+
+vector<vector<int>> TwoPointer::TwoPointerByiterator_15(vector<int>& nums) {
+    sort(nums.begin(), nums.end());
+
+    vector<vector<int>> out;
+    //for(int i = 0; i < nums.size() && nums[i] <= 0; ++i){
+    for (auto it = nums.begin(); it != nums.end() && *it <= 0; ++it) {
+        //if(i && nums[i] == nums[i-1]) continue; // skip duplicates
+        if (it != nums.begin() && *it == *(it - 1)) continue; // skip duplicates
+
+        //int left = i + 1;
+        auto left = it + 1;
+        //int right = nums.size()-1;
+        auto right = nums.end() - 1;
+
+        while (left < right) {
+            //int sum = nums[i] + nums[left] + nums[right];
+            int sum = *it + *left + *right;
+            if (sum > 0) { // too big, shrink largest number
+                right--;
+            }
+            else if (sum < 0) { //too small, grow smallest number
+                left++;
+            }
+            else { //matched
+                //out.push_back({nums[i], nums[left], nums[right]});
+                out.push_back({ *it, *left, *right });
+                //Consume pair
+                left++;
+                right--;
+                // skip duplicates
+                for (; left < right && *left == *(left - 1); ++left) {}
+            }
+        }
+    }
+
+    return out;
+}
+
+void TwoPointer::Sort_15(vector<int>& nums, int first, int last) {
+
+    if (last <= first) return;
+    int middle = (first + last) >> 1;
+    Sort_15(nums, first, middle);
+    Sort_15(nums, middle + 1, last);
+    OutPlace_15(nums, first, middle, last);
+
+}
+
+void TwoPointer::OutPlace_15(vector<int>& nums, int first, int middle, int last) {
+    int iSortsize = last - first + 1; vector<int> sort(iSortsize, 0); int i = 0;
+    int l = first; int r = middle + 1;
+    while (l <= middle && r <= last)
+        sort[i++] = nums[l] < nums[r] ? nums[l++] : nums[r++];
+    while (l <= middle)
+        sort[i++] = nums[l++];
+    while (r <= last)
+        sort[i++] = nums[r++];
+
+    for (int i = 0; i < iSortsize; i++)
+        nums[first + i] = sort[i];
+}
+#pragma endregion
+
+#pragma region Leetcode 18. 4Sum
+//Leetcode 18. 4Sum (排序數組)
+/*雙指針 + 排序	KSum 問題=> O(n^3)*/
+vector<vector<int>> TwoPointer::Leetcode_Sol_18(vector<int>& nums, int target, int _solution) {
+    switch (_solution)
+    {
+    case 1:
+        return TwoPointer_18(nums, target);
+    case 2:
+        return TwoPointeriterator_18(nums, target);
+    case 3:
+        return Universal_18(nums, target);
+    default:
+        return {}; // 確保所有路徑都有回傳值
+    }
+
+    return {};
+}
+
+vector<vector<int>> TwoPointer::TwoPointer_18(vector<int>& nums, int target) {
+    //Sort_15(nums,0,nums.size()-1);    //自己寫的mergesort
+    std::sort(nums.begin(), nums.end()); //std的sort
+    vector<vector<int>> ans; int size = nums.size();
+    int sizeof3sum = size - 2, sizeof4sum = size - 3;
+    for (int i_4 = 0; i_4 < sizeof4sum; i_4++) {
+        if (i_4 > 0 && nums[i_4] == nums[i_4 - 1]) continue;
+
+        for (int i_3 = i_4 + 1; i_3 < sizeof3sum; i_3++) {    //錯誤：i_3應該在i_4後面
+            if (i_3 > i_4 + 1 && nums[i_3] == nums[i_3 - 1]) continue;//錯誤：if (nums[i_3] == nums[i_3 - 1]) continue;
+
+            int l = i_3 + 1, r = size - 1;
+            while (l < r) {
+                long sum = nums[i_4];
+                sum += nums[i_3];
+                sum += nums[l];
+                sum += nums[r];
+                //錯誤：long long sum = nums[i_4] + nums[i_3] + nums[l] + nums[r];
+                /*這題超陷阱，因為int加全部的時候，都是在int加的，他是加完後在轉long，除非你先個別轉，如下：
+                long sum = static_cast<long>(nums[i_4]) + static_cast<long>(nums[i_3]) + static_cast<long>(nums[l]) + static_cast<long>(nums[r]);*/
+
+                if (sum == target) {
+                    ans.push_back({ nums[i_4] ,nums[i_3] ,nums[l] ,nums[r] }); //記得排序好
+                    l++; r--;
+                    while (l < r && nums[l] == nums[l - 1]) l++;
+                    while (l < r && nums[r] == nums[r + 1]) r--;
+                }
+                else if (sum < target)l++;
+                else r--;
+            }
+        }
+    }
+    return ans;
+}
+
+vector<vector<int>> TwoPointer::TwoPointeriterator_18(vector<int>& nums, int target) {
+    // 避免越界(如果你下面那個判斷式要寫成，it!=nums.end()-3、it!=nums.end()-2的形式)那就要加這行
+    //if (nums.size() < 4) return {}; 
+    sort(nums.begin(), nums.end());
+    vector<vector<int>> ans;
+    ans.reserve(nums.size() / 4);
+    for (auto it = nums.begin(); it != nums.end(); ++it) {
+        if (it != nums.begin() && *it == *(it - 1)) continue;
+        for (auto it2 = it + 1; it2 != nums.end(); ++it2) {
+            if (it2 != it + 1 && *it2 == *(it2 - 1)) continue;
+
+            vector<int>::iterator l = it2 + 1, r = nums.end() - 1;
+            while (l < r) {
+                long long sum = (long long)*it + *it2 + *l + *r;
+                if (sum > target) r--;
+                else if (sum < target)l++;
+                else {
+                    ans.push_back({ *it,*it2,*l++,*r-- });
+                    //錯誤寫法：ans.emplace_back(*it, *it2, *l, *r);
+                    /*正確寫法：
+                    ans.emplace_back(std::vector<int>{*it, *it2, *l, *r});
+                    // 直接傳入參數，讓 emplace_back 建構 vector<int>
+                    l++;
+                    r--;*/
+                    while (l < r && *l == *(l - 1)) l++;
+                    while (l < r && *r == *(r + 1)) r--;
+                }
+            }
+        }
+    }
+    return ans;
+}
+
+/*星星：***** 通用nSum */
+vector<vector<int>> TwoPointer::Universal_18(vector<int>& nums, int target) {
+    vector<vector<int>> ans; vector<int> path;
+    sort(nums.begin(), nums.end());
+    nSum(nums, 4, target, 0, nums.size() - 1, path, ans);//第二個參數：控制第nSum
+    return ans;
+}
+
+void TwoPointer::nSum(const vector<int>& nums, long n, long target, int l, int r, vector<int>& path, vector<vector<int>>& ans) {
+    //Base Case Condition：
+    if (r - l + 1 < n || target < n * nums[l] || target > n * nums[r]) return;//長度要對 || 目標值都比剩下的還小 || 目標值都比剩下的還大
+    //Base Case：
+    if (n == 2) {
+        while (l < r) {
+            int sum = nums[l] + nums[r];//不知道為什麼作者要寫const
+            if (sum == target) {
+                path.push_back(nums[l]);
+                path.push_back(nums[r]);
+                ans.push_back(path);
+                path.pop_back();
+                path.pop_back();
+                r--; l++;
+                while (l < r && nums[l] == nums[l - 1]) l++;
+                while (l < r && nums[r] == nums[r + 1]) r--;
+            }
+            else if (target > sum)l++;
+            else r--;
+        }
+        return;
+    }
+    //Recursion
+    int iChangeSize = r - (n - 2);
+    for (int i = l; i <= iChangeSize; i++) {
+        if (i > l && nums[i] == nums[i - 1]) continue;
+        path.push_back(nums[i]);                       //為了帶上一層的參數
+        nSum(nums, n - 1, target - nums[i], i + 1, r, path, ans);//遞迴n-1的nSum
+        path.pop_back();                               //用完後，要pop()
+    }
+}
+#pragma endregion
+
 #pragma region Leetcode 658. Find K Closest Elements
 //Leetcode 658. Find K Closest Elements (也是考排序 + 某一值的左右)
 vector<int> TwoPointer::Leetcode_Sol_658(vector<int>& numbers, int k, int x, int _solution) {
@@ -260,6 +501,45 @@ vector<int> TwoPointer::BinarySearchAndTwoPointer_658(vector<int>& numbers, int 
     return vector<int>(anstemp.begin(), anstemp.end());
 }
 #pragma endregion
+
+#pragma region Leetcode 42. Trapping Rain Water
+//Leetcode 42. Trapping Rain Water(3.最大面積)
+int TwoPointer::Leetcode_Sol_42(vector<int>& height) {
+    int left = 0, right = height.size() - 1;
+    int max_left = 0, max_right = 0;
+    int icount = 0;
+    while (left <= right) {//判斷要不要等於，就相當於要不要算最後相等的那次
+        if (height[left] < height[right]) {
+            if (height[left] >= max_left)
+                max_left = height[left];
+            else
+                icount += max_left - height[left];
+            left++;
+        }
+        else {
+            if (height[right] >= max_right)
+                max_right = height[right];
+            else
+                icount += max_right - height[right];
+            right--;
+        }
+    }
+    return icount;
+#pragma region 解題思路:
+    /*
+          step1. 先拆成U 型 跟 倒U型：
+          那自然而已我們會寫成左右向中間走(並且是小的往間走)，
+          再來記錄當前left的左邊最大高度、right的右邊最大高度有沒有比自己大或是跟自己一樣大：
+          如果>=的話，就刷新當前最大值
+          step2. 那如果沒有的話要怎麼紀錄呢?
+          就把當前的水位紀錄起來
+          (那可能會想說奇怪，那萬一右邊比較矮呢?)
+          Ans：原因當你會記錄這次水位的前提 => 右邊就已經比左邊大才會記錄這次left的水位，
+               右邊永遠會高於左邊，因為第一層的判別，就是大的不動，小的動；反之也是一樣
+     */
+#pragma endregion
+}
+#pragma endregion
 #pragma endregion
 
 #pragma region 考題二:同向指針 1.子陣列 2.滑動窗口(Sliding Window)
@@ -303,6 +583,53 @@ int TwoPointer::Leetcode_Sol_209(std::vector<int>& nums, int target) {
         }
     }
     return min_length == INT_MAX ? 0 : min_length;
+}
+#pragma endregion
+
+#pragma region Leetcode 76. Minimum Window Substring
+//Leetcode 76. Minimum Window Substring(1.子陣列)
+string TwoPointer::Leetcode_Sol_76(std::string s, std::string t) {
+    int Tsize = t.size(), Ssize = s.size();
+    if (Ssize < Tsize) return "";
+    //Bucket Counting =>「利用一個固定大小的陣列來統計頻率」
+    vector<int> map(128, 0);
+    vector<int> freq(128, 0);
+    for (auto c : t) {
+        freq[c]++;
+    }
+    int left = 0;   //當第一次滿足所有t的時候，開始跟著跑紀錄位置(跑一次m)
+    int right = 0;  //right從頭到尾遍歷一次(跑一次m)
+    int count = 0;  //用來確認t的所有值都有出現
+    int min_length = INT_MAX, start = 0;
+    int freqCount = count_if(freq.begin(), freq.end(), [](int x) {return x > 0; });
+    while (right < Ssize) {
+        //擴大窗口
+        if (freq[s[right]] > 0) {
+            map[s[right]]++;
+            if (map[s[right]] == freq[s[right]])
+                count++;
+        }
+        //當全部t內的char都有時，收縮窗口
+        while (count == freqCount) {
+            if (freq[s[left]]) {
+                if (right - left + 1 < min_length) {
+                    start = left;
+                    min_length = right - left + 1;
+                }
+                /*這行是為了當left遇到第一個t字串裡面的內容時，
+                  為了能讓right不管後續有多少個重複的t字串裡面的char，最後都必須由這個收尾*/
+                if (map[s[left]] == freq[s[left]]) {
+                    count--;//(寫這個是因為等等後面會做map[s[left]]--;減少他的出現次數)
+                }
+                map[s[left]]--; //會有abcba這種情況
+            }
+
+            left++;
+
+        }
+        right++;
+    }
+    return min_length == INT_MAX ? "" : s.substr(start, min_length);
 }
 #pragma endregion
 #pragma endregion
@@ -401,167 +728,7 @@ ListNode* TwoPointer::TwoPointer_19(ListNode* head, int n) {
 #pragma endregion
 #pragma endregion
 
-
-
-
-
-#pragma region Leetcode 15. 3Sum
-//Leetcode 15. 3Sum
-vector<vector<int>> TwoPointer::Leetcode_Sol_15(vector<int>& nums,int _solution) {
-    switch (_solution)
-    {
-    case 1:
-        return TwoPointer_15(nums);
-    default:
-        return {}; // 確保所有路徑都有回傳值
-    }
-
-    return {};
-}
-/*雙指針 + 排序	KSum 問題=> O(n^2)*/
-vector<vector<int>> TwoPointer::TwoPointer_15(vector<int>& nums) {
-    //Sort_15(nums,0,nums.size()-1);    //自己寫的mergesort
-    std::sort(nums.begin(),nums.end()); //std的sort
-    vector<vector<int>> ans; int size = nums.size();
-    
-    for (int i = 0; i < size - 2/*左右各一*/; i++) {
-        if (i > 0 && nums[i] == nums[i - 1]) continue;
-        int l = i + 1, r = size - 1; 
-        while (l < r) {
-            int sum = nums[i] + nums[l] + nums[r];
-            if (sum == 0) {
-                ans.push_back({ nums[i], nums[l], nums[r] }); \
-                    l++;
-                r--;
-                while (l < r && nums[l] == nums[l - 1]) l++;    //重複的就別錯了，EX：[1,1......105]
-                while (l < r && nums[r] == nums[r + 1])r--;
-            }
-            else if (sum < 0) l++;
-            else r--;
-        }
-    }
-    return ans;
-}
-
-void TwoPointer::Sort_15(vector<int>& nums,int first, int last) {
-
-    if (last <= first) return;
-    int middle = (first + last) >> 1;
-    Sort_15(nums,first, middle);
-    Sort_15(nums,middle+1,last);
-    OutPlace_15(nums, first, middle, last);
-
-}
-
-void TwoPointer::OutPlace_15(vector<int>& nums, int first,int middle, int last) {
-    int iSortsize = last - first + 1; vector<int> sort(iSortsize, 0); int i = 0;
-    int l = first; int r = middle + 1;
-    while (l <= middle && r <= last) 
-        sort[i++] = nums[l] < nums[r] ? nums[l++] : nums[r++];
-    while (l <= middle)
-        sort[i++] = nums[l++];
-    while (r <= last)
-        sort[i++] = nums[r++];
-
-    for (int i = 0; i < iSortsize; i++)
-        nums[first + i] = sort[i];  
-}
-#pragma endregion
-
-/*雙指針 + 排序	KSum 問題=> O(n^3)*/
-#pragma region Leetcode 18. 4Sum
-//Leetcode 18. 4Sum
-vector<vector<int>> TwoPointer::Leetcode_Sol_18(vector<int>& nums, int target, int _solution) {
-    switch (_solution)
-    {
-    case 1:
-        return TwoPointer_18(nums, target);
-    case 2:
-        return Universal_18(nums, target);
-    default:
-        return {}; // 確保所有路徑都有回傳值
-    }
-
-    return {};
-}
-
-vector<vector<int>> TwoPointer::TwoPointer_18(vector<int>& nums, int target) {
-    //Sort_15(nums,0,nums.size()-1);    //自己寫的mergesort
-    std::sort(nums.begin(), nums.end()); //std的sort
-    vector<vector<int>> ans; int size = nums.size();
-    int sizeof3sum = size - 2, sizeof4sum = size - 3;
-    for (int i_4 = 0; i_4 < sizeof4sum; i_4++) {    
-        if (i_4 > 0 && nums[i_4] == nums[i_4 - 1]) continue;
-
-        for (int i_3 = i_4 + 1; i_3 < sizeof3sum; i_3++) {    //錯誤：i_3應該在i_4後面
-            if (i_3 > i_4 + 1 && nums[i_3] == nums[i_3 - 1]) continue;//錯誤：if (nums[i_3] == nums[i_3 - 1]) continue;
-            
-            int l = i_3 + 1, r = size - 1;
-            while (l < r) {
-                long sum = nums[i_4];
-                sum += nums[i_3];
-                sum += nums[l];
-                sum += nums[r];
-                //錯誤：long long sum = nums[i_4] + nums[i_3] + nums[l] + nums[r];
-                /*這題超陷阱，因為int加全部的時候，都是在int加的，他是加完後在轉long，除非你先個別轉，如下：
-                long sum = static_cast<long>(nums[i_4]) + static_cast<long>(nums[i_3]) + static_cast<long>(nums[l]) + static_cast<long>(nums[r]);*/
-
-                if (sum == target) {
-                    ans.push_back({ nums[i_4] ,nums[i_3] ,nums[l] ,nums[r] }); //記得排序好
-                    l++; r--;
-                    while (l < r && nums[l] == nums[l - 1]) l++;
-                    while (l < r && nums[r] == nums[r + 1]) r--;
-                }
-                else if (sum < target)l++;
-                else r--;
-            }
-        }
-    }
-    return ans;
-}
-
-/*星星：***** 通用nSum */
-vector<vector<int>> TwoPointer::Universal_18(vector<int>& nums, int target) {
-    vector<vector<int>> ans; vector<int> path;
-    sort(nums.begin(), nums.end());
-    nSum(nums, 4, target, 0, nums.size() - 1, path, ans);//第二個參數：控制第nSum
-    return ans;
-}
-
-void TwoPointer::nSum(const vector<int>& nums, long n, long target, int l, int r, vector<int>& path, vector<vector<int>>& ans) {
-    //Base Case Condition：
-    if (r - l + 1 < n || target < n * nums[l] || target > n * nums[r]) return;//長度要對 || 目標值都比剩下的還小 || 目標值都比剩下的還大
-    //Base Case：
-    if (n == 2) {
-        while (l < r) {
-            int sum = nums[l] + nums[r];//不知道為什麼作者要寫const
-            if (sum == target) {
-                path.push_back(nums[l]);
-                path.push_back(nums[r]);
-                ans.push_back(path);
-                path.pop_back();
-                path.pop_back();
-                r--; l++;
-                while (l < r && nums[l] == nums[l - 1]) l++;
-                while (l < r && nums[r] == nums[r + 1]) r--;
-            }
-            else if (target > sum)l++;
-            else r--;
-        }
-        return;
-    }
-    //Recursion
-    int iChangeSize = r - (n - 2);
-    for (int i = l; i <= iChangeSize; i++) {
-        if (i > l && nums[i] == nums[i - 1]) continue;
-        path.push_back(nums[i]);                       //為了帶上一層的參數
-        nSum(nums,n-1,target-nums[i],i + 1,r,path,ans);//遞迴n-1的nSum
-        path.pop_back();                               //用完後，要pop()
-    }
-}
-#pragma endregion
-
-#pragma region 考題五:ThreePointer
+#pragma region 考題四:ThreePointer
 
 #pragma region Leetcode 75. Sort Colors
 //Leetcode 75. Sort Colors
@@ -695,6 +862,7 @@ void TwoPointer::Leetcode_Sol_88(std::vector<int>& nums1, int m, std::vector<int
 #pragma endregion
 #pragma endregion
 
+#pragma region 考題一(變形題):左右指針(相向) + 回文 => (Manacher面試不可寫，但要會說明)
 #pragma region Leetcode 5. Longest Palindromic Substring
 //Leetcode 5. Longest Palindromic Substring
 
@@ -733,7 +901,7 @@ string TwoPointer::TwoPointerOfExpandAroundCenter_5(string s) {
     }
 
     return s.substr(start, maxLen);
-    #pragma region Lambda List
+#pragma region Lambda List
     /*
     Lambda列表：
     [&]	所有變數都用引用捕獲（可以修改外部變數）
@@ -743,7 +911,7 @@ string TwoPointer::TwoPointerOfExpandAroundCenter_5(string s) {
     [=, &var]	預設值捕獲，但 var 例外 用引用捕獲
     [&, var]	預設引用捕獲，但 var 例外 用值捕獲
     */
-    #pragma endregion   
+#pragma endregion   
 }
 #pragma region - Memorize1 - 
 /*Step 1.
@@ -825,6 +993,143 @@ string TwoPointer::ManachersAlg_5(string s) {
     return s.substr(start, maxLen);//第二個參數超過s.size()沒差，他只是的擷取幾個元素(包含起始點)
 }
 #pragma endregion
+
+#pragma region Leetcode 647. Palindromic Substrings
+//Leetcode 647. Palindromic Substrings
+int TwoPointer::Leetcode_Sol_647(string s, int _solution) {
+    switch (_solution)
+    {
+    case 1:
+        brute_force_647(s);
+    case 2:
+        return TwoPointer_647(s);
+    case 3:
+        return ManachersAlg_647(s);
+
+    default:
+        return 0; // 確保所有路徑都有回傳值
+    }
+
+    return 0;
+}
+/*暴力破解O(n^3)*/
+int TwoPointer::brute_force_647(string s) {
+    //n、n-1、n-2、n-3...1
+    //再依次判斷是不是遞迴，是的話就count++
+    int count = 0, strsize = s.size();
+    for (int dist = 0; dist < strsize; dist++) {
+
+        for (int i = 0; i < strsize; i++) {
+            int l = i, r = l + dist; bool ispalindromic = true;
+            while (l <= r) {
+                if (r < strsize && s[l] == s[r])
+                    r--, l++;
+                else {
+                    ispalindromic = false;
+                    break;
+                }
+            }
+            if (ispalindromic)  count++;
+        }
+
+    }
+
+    return count;
+}
+
+/*中心擴展*/
+int TwoPointer::TwoPointer_647(string s) {
+    int count = 0;
+    auto expand = [&](string& s, int left, int right) {
+        int count = 0;
+        while (left >= 0 && right < s.size() && s[left] == s[right]) {
+            count++, left--, right++;
+        }
+        return count;
+        };
+    //這個i算是地塞
+    for (int i = 0; i < s.size(); i++) {
+        count += expand(s, i, i);
+        count += expand(s, i, i + 1);
+        //count += odd(s,i);
+        //count += even(s,i);
+    }
+    return count;
+}
+int TwoPointer::odd(string s, int idx) {
+    int l = idx, r = idx;
+    int count = 0;
+    while (l >= 0 && r < s.size() && s[l] == s[r]) {
+        count++, l--, r++;
+    }
+    return count;
+}
+int TwoPointer::even(string s, int idx) {
+    int l = idx, r = idx + 1;
+    int count = 0;
+    while (l >= 0 && r < s.size() && s[l] == s[r]) {
+        count++, l--, r++;
+    }
+    return count;
+}
+
+/*Manachers*/
+int TwoPointer::ManachersAlg_647(string s) {
+    if (s.empty()) return 0;
+
+    // Step 1: Transform the string into T with separators
+    string T = "#";
+    for (char c : s) {
+        T += c;
+        T += "#";
+    }
+    int n = T.size();
+
+    // Step 2: Manacher's Algorithm
+    vector<int> P(n, 0); // P[i] is the radius of palindrome centered at i
+    int C = 0, R = 0; // Center and right boundary
+    int count = 0;
+
+    for (int i = 0; i < n; i++) {
+        int mirror = 2 * C - i; // Mirror of i around C
+
+        if (i < R)
+            P[i] = min(R - i, P[mirror]);
+
+        // Expand around i
+        while (i - P[i] - 1 >= 0 && i + P[i] + 1 < n && T[i - P[i] - 1] == T[i + P[i] + 1])
+            P[i]++;
+
+        // Update center and right boundary if expanded past R
+        if (i + P[i] > R) {
+            C = i;
+            R = i + P[i];
+        }
+
+        // Step 3: Each palindrome centered at i contributes (P[i] + 1) / 2 real palindromes
+        count += (P[i] + 1) / 2;//=> P[i]/2 + 1/2 (他(包含"#")就等於是只算他自己那層)
+    }
+
+    return count;
+}
+
+#pragma endregion
+#pragma endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
