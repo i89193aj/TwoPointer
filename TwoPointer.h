@@ -98,6 +98,7 @@ public:
     std::string Leetcode_Sol_5(std::string s, int _solution);
     std::string TwoPointerOfExpandAroundCenter_5(std::string s);
     std::string ManachersAlg_5(std::string s);
+    std::string ManachersAlg_iterator_5(std::string s);
 
     int Leetcode_Sol_42(std::vector<int>& height);//*****
 

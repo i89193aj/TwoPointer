@@ -30,7 +30,7 @@ int main()
     int iInput1 = 0;int iInput2 = 0;
     //string strinput1 = "gggggacdbabbbbbbbbbbbbbbabdcabbbbbbbbbbbbbbabdcazzzz";
     string strinput1 = "bab";
-    string strinput2 = "baab";
+    string strinput2 = "xaabacxcabaaxcabaax";
 
     int Ans = 0; vector<int> AnsVector; string AnsStr = "";
 
@@ -44,8 +44,8 @@ int main()
     case Longest5PalindromicSubstring:
         AnsStr = Implementation->Leetcode_Sol_5(strinput1,2);
         AnsStr = Implementation->Leetcode_Sol_5(strinput2, 2);
-
-
+        AnsStr = Implementation->Leetcode_Sol_5(strinput2, 3);
+        break;
     default:
         break;
     }
@@ -71,6 +71,28 @@ int main()
 
     return 0;
     #pragma endregion
+
+    #pragma region 16進位, 2進位運算
+    /*16進位1位數 = 4bit(0000 ~ 1111)，超過1111就進位，所以1byte就等於16進制+1*/
+    int arr[] = { 10, 20, 30, 40 };
+
+    int* p1 = &arr[1]; // 20
+    int* p2 = &arr[2]; // 30
+
+    cout << "p1: " << p1 << endl;
+    cout << "p2: " << p2 << endl;
+    cout << "p1 < p2: " << (p1 < p2) << endl;
+    cout << "p1 < p2: " << (p1 > p2) << endl;
+
+    int arr1[] = { 40,30,20,10 };
+    p1 = &arr1[1]; // 30
+    p2 = &arr1[2]; // 20
+    cout << "p1: " << p1 << endl;
+    cout << "p2: " << p2 << endl;
+    cout << "p1 < p2: " << (p1 < p2) << endl;
+    cout << "p1 < p2: " << (p1 > p2) << endl;
+    #pragma endregion
+
 
     
 }
@@ -873,6 +895,8 @@ string TwoPointer::Leetcode_Sol_5(string s, int _solution) {
         return TwoPointerOfExpandAroundCenter_5(s);
     case 2:
         return ManachersAlg_5(s);
+    case 3:
+        return ManachersAlg_iterator_5(s);
 
     default:
         return ""; // 確保所有路徑都有回傳值
@@ -992,6 +1016,68 @@ string TwoPointer::ManachersAlg_5(string s) {
     }
     return s.substr(start, maxLen);//第二個參數超過s.size()沒差，他只是的擷取幾個元素(包含起始點)
 }
+
+
+string TwoPointer::ManachersAlg_iterator_5(string s) {
+    int max_length = 1, start = 0;
+    int rightmax = 0; int center = 0, now_radix = 0;
+    //step 1.expand
+    string s_expand = "#";
+    for (auto it = s.begin(); it != s.end(); ++it)
+        s_expand += *it, s_expand += "#";
+
+    vector<int> p(s_expand.size(),0);
+
+    auto longPalindrome = [&](auto it) {
+        auto left = it - now_radix, right = it + now_radix;
+        //在編譯器是不能只像begin()-1 ，連--left; 都不行(這就相當於linklist：head->next->next，但head->next = nullptr;)
+        while (left > s_expand.begin() && right != s_expand.end() && *left == *right) {
+            --left;
+            ++right;
+        }
+
+        if (left == s_expand.begin() && *left == *right) {
+            int len_temp = right - left;
+            //step 3.Record the max_length & start
+            if (max_length < len_temp) {
+                start = left - s_expand.begin();
+                max_length = len_temp;
+            }
+        }
+        else {
+            int len_temp = right - left - 1;
+            //step 3.Record the max_length & start
+            if (max_length < len_temp) {
+                start = left - s_expand.begin() + 1;
+                max_length = len_temp;
+            }
+        }
+        int right_temp = right - s_expand.begin() - 1;
+        if (right_temp > rightmax) {
+            rightmax = right_temp;
+            center = it - s_expand.begin();
+        }
+    };
+
+
+    for (auto it = s_expand.begin(); it != s_expand.end(); ++it) {
+        //step 4. Record is now_radix
+        //int centertoit = (it - s_expand.begin()) - center; //int mirror = 2 * center - i; // 計算鏡像點(標準解法，他是用半徑)
+        int i = it - s_expand.begin(); // 轉換 iterator 為索引
+        //比較下面兩種，p[]他知道你在用指標運算變成int，但下面那個，他沒辦法保證it - s_expand.begin()是整數，除非你在前面加(int)(it - s_expand.begin())
+        p[i] = i < rightmax ? min(p[(it - s_expand.begin()) - center], rightmax-i) : 0;
+        //p[it - s_expand.begin()] = it - s_expand.begin() < rightmax ? min(p[centertoit], rightmax - (it - s_expand.begin())) : 0;
+
+        //step 2.longestPalindrome
+        longPalindrome(it);
+    }
+
+    //step 4. Reduce s_expand for s
+    max_length = max_length >> 1;
+    start = start >> 1;
+
+    return s.substr(start, max_length);
+}
 #pragma endregion
 
 #pragma region Leetcode 647. Palindromic Substrings
@@ -1096,7 +1182,7 @@ int TwoPointer::ManachersAlg_647(string s) {
         if (i < R)
             P[i] = min(R - i, P[mirror]);
 
-        // Expand around i
+        // Expand around i (別忘了是控制半徑!)
         while (i - P[i] - 1 >= 0 && i + P[i] + 1 < n && T[i - P[i] - 1] == T[i + P[i] + 1])
             P[i]++;
 
